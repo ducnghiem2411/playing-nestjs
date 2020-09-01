@@ -6,7 +6,10 @@ import {
   Param,
   Delete,
   Patch,
-  Query
+  Query,
+  UsePipes,
+  ValidationPipe,
+  NotFoundException
 } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { Task, TaskStatus } from './tasks.model';
@@ -20,16 +23,19 @@ export class TasksController {
   @Get()
   getTasks(@Query() filterDto: GetTasksFilterDto): Task[] {
     if (Object.keys(filterDto).length) {
-      return this.tasksService.getTasksWithFilters(filterDto)
-    }
-    else {
+      return this.tasksService.getTasksWithFilters(filterDto);
+    } else {
       return this.tasksService.getAllTasks();
     }
   }
 
   @Get('/:id')
   getTaskById(@Param('id') id: string): Task {
-    return this.tasksService.getTaskById(id);
+    const task = this.tasksService.getTaskById(id);
+    if (!task) {
+      throw new NotFoundException();
+    }
+    return task;
   }
 
   @Delete('/:id')
@@ -38,6 +44,7 @@ export class TasksController {
   }
 
   @Post()
+  @UsePipes(ValidationPipe)
   createTask(@Body() createTaskDto: CreateTaskDto): Task {
     return this.tasksService.createTask(createTaskDto);
   }
@@ -49,5 +56,4 @@ export class TasksController {
   ): Task {
     return this.tasksService.updateTaskStatus(id, status);
   }
-
 }
