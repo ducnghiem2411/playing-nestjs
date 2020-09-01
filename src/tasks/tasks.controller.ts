@@ -31,11 +31,7 @@ export class TasksController {
 
   @Get('/:id')
   getTaskById(@Param('id') id: string): Task {
-    const task = this.tasksService.getTaskById(id);
-    if (!task) {
-      throw new NotFoundException();
-    }
-    return task;
+    return this.tasksService.getTaskById(id)
   }
 
   @Delete('/:id')
